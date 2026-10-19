@@ -1,0 +1,168 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Python
+# ─────────────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv
+venv/
+env/
+ENV/
+.python-version
+
+# pip / setuptools
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+pytest_cache/
+cover/
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# IDE / Editores
+# ─────────────────────────────────────────────────────────────────────────────
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.idea/
+*.swp
+*.swo
+*~
+.*.un~
+.*.sw?
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.auto-save-list
+/.tramp
+.\#*
+
+# Kate
+*.kate-swp
+.*.kate-swp
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sistema operativo
+# ─────────────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Chronos específico
+# ─────────────────────────────────────────────────────────────────────────────
+# Histórico local do utilizador (NÃO commitar — contém dados pessoais)
+historico.json
+~/.config/organizar_fotos/
+
+# Pastas de teste com fotos reais
+test_photos/
+test_data/
+sample_photos/
+
+# Sidecars de teste
+*.xmp
+*.pp3
+*.dop
+!docs/examples/*.xmp
+
+# Screenshots temporários
+screenshot_*.png
+tmp_*.png
+
+# Logs de debug
+debug.log
+*.log
+
+# Backups do histórico
+historico.json.bak
+historico.json.tmp
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Documentação / MkDocs (se adicionado no futuro)
+# ─────────────────────────────────────────────────────────────────────────────
+site/
+.cache/
+site/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Empacotamento
+# ─────────────────────────────────────────────────────────────────────────────
+*.deb
+*.rpm
+*.pkg.tar.zst
+*.AppImage
