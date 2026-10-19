@@ -6,7 +6,7 @@
 [![GTK3](https://img.shields.io/badge/GTK-3.0-green.svg)](https://www.gtk.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20BSD-lightgrey.svg)](https://github.com/Chronos-Photo-Organizer)
-[![Version](https://img.shields.io/badge/version-5.3-orange.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-5.5-orange.svg)](./CHANGELOG.md)
 
 ---
 
@@ -44,11 +44,11 @@ O script move também os **ficheiros sidecar** associados a cada fotografia (`.x
 
 - 📅 **Agrupamento por data de captura EXIF** (Tag 36867 `DateTimeOriginal`), não por data de modificação do ficheiro.
 - 🖼️ **Pré-visualização** da primeira foto de cada data no diálogo de configuração.
-- 🗂️ **Suporte a sidecars** XMP, PP3 e DOP —_move-os automaticamente com a foto principal.
+- 🗂️ **Suporte a sidecars** XMP, PP3 e DOP — move-os automaticamente com a foto principal.
 - ⌨️ **Histórico persistente** de eventos e locais em `~/.config/organizar_fotos/historico.json`, com auto-completar via ComboBox.
 - 🧹 **Sanitização inteligente** de nomes: preserva acentos e hífens existentes (ex.: "Trás-os-Montes"), substitui espaços por hífens, normaliza separadores duplicados.
 - 🌙 **Tema dark herdado** do GNOME — sem ofuscar os olhos em sessões de edição noturnas.
-- 📁 **Opção "um nível acima"** para criar as pastas fora da pasta atual (útil ao organizar fotos dentro de uma pasta "raw" e querer as estruturadas na pasta pai).
+- 📁 **Seletor de pasta de destino** via `Gtk.FileChooserDialog` — abre em `~/Imagens`, persiste a última escolha.
 - 🔁 **Resolução de conflitos** automática com sufixo `_1`, `_2`, ... quando já existe ficheiro com o mesmo nome.
 - 🎞️ **29 extensões RAW suportadas**: CR2, CR3, NEF, ARW, DNG, ORF, RW2, PEF, SRW, RAF, etc.
 
@@ -142,7 +142,7 @@ Os argumentos podem ser paths absolutos ou URIs `file://` (formato recebido do N
 2. Botão direito → **Scripts → Chronos.py**.
 3. No diálogo inicial, escolher:
    - ✅ **Pedir Evento e Local para cada data** (recomendado) — abre um diálogo por data distinta.
-   - ⬆️ **Criar pasta(s) um nível acima** — útil para organizar fotos dentro de `raw/` e receber pastas estruturadas em `../estruturadas/`.
+   - 📁 **Pasta de destino** — clica em **Procurar...** para abrir um navegador de ficheiros que abre em `~/Imagens`. A pasta escolhida fica visível no diálogo e é guardada para a próxima execução.
 4. Para cada data distinta, o diálogo mostra um thumbnail da primeira foto dessa data. Preencher **Evento** e **Local** (com auto-completar do histórico). Ambos os campos têm de estar preenchidos para o botão **OK** ficar ativo.
 5. Confirmar com **OK** ou cancelar (a data fica com nome padrão `Evento_Local`).
 6. No fim, aparece um resumo com:
@@ -245,13 +245,15 @@ O Chronos mantém um histórico JSON em:
     "Lisboa",
     "Porto",
     "Trás-os-Montes"
-  ]
+  ],
+  "ultima_pasta": "/home/utilizador/Imagens/2024"
 }
 ```
 
-- Os valores são guardados **exatamente como escritos** (texto cru, com acentos e espaços).
+- Os valores de `eventos` e `locais` são guardados **exatamente como escritos** (texto cru, com acentos e espaços).
+- `ultima_pasta` guarda a última pasta de destino escolhida no diálogo inicial, para re-aparecer pré-selecionada na próxima execução.
 - A ordenação é alfabética, automática ao gravar.
-- Os duplicates são eliminados via `set()`.
+- Os duplicados são eliminados via `set()`.
 - Em diálogos futuros, estes valores aparecem como sugestões no ComboBox.
 
 ### Backup do histórico
@@ -266,7 +268,7 @@ cp ~/.config/organizar_fotos/historico.json ~/dotfiles/chronos/
 
 ## 🧹 Sanitização inteligente
 
-A função `sanitize()` (em `chronos.py`, linha ~110) é o coração da coerência dos nomes de pasta. Aplica as seguintes transformações:
+A função `sanitize()` (em `chronos.py`, linha ~174) é o coração da coerência dos nomes de pasta. Aplica as seguintes transformações:
 
 | Input | Output | Notas |
 |---|---|---|
@@ -275,6 +277,7 @@ A função `sanitize()` (em `chronos.py`, linha ~110) é o coração da coerênc
 | `São João!!` | `São-João` | Pontuação removida, acentos mantidos |
 | `A -- B` | `A-B` | Hífens duplos colapsados |
 | `-Natal-` | `Natal` | Hífens nas pontas removidos |
+| `Festa_Casa` | `Festa-Casa` | Underscores → hífens (separador consistente) |
 | `(vazio)` | `Indefinido` | Fallback quando input vazio |
 
 ### Expressão regular principal
@@ -287,7 +290,7 @@ re.sub(r'[^\w-]', '', t, flags=re.UNICODE)  # \w em Python 3 já inclui acentos
 
 ## ⚠️ Limitações conhecidas
 
-1. **Datas em RAW podem usar mtime como fallback** — em versões atuais, se o Pillow não conseguir extrair EXIF (caso de RAWs exóticos), a data de modificação é usada. Planeado: integração com `exifread` ou `exiftool` (ver [Roadmap](#-roadmap)).
+1. **Datas em RAW podem usar mtime como fallback** — se o Pillow não conseguir extrair EXIF e o `exifread` não estiver instalado, a data de modificação é usada. Recomenda-se instalar `exifread` (`pip install exifread`) para suporte completo a RAWs. O script avisa no relatório final quando isto acontece.
 
 2. **Thumbnail síncrono** — a geração de thumbnails em RAWs grandes pode bloquear a UI por 1-3 segundos por foto. Solução planeada: carregar thumbnails em thread.
 
@@ -301,13 +304,15 @@ re.sub(r'[^\w-]', '', t, flags=re.UNICODE)  # \w em Python 3 já inclui acentos
 
 ## 🗺️ Roadmap
 
-- [ ] **v5.4** — Integração com `exifread` para extração fiável de datas em RAWs
-- [ ] **v5.4** — Corrigir filtro `file://` em URIs do Nautilus
-- [ ] **v5.4** — Escrita atómica do `historico.json` (via `os.replace`)
-- [ ] **v5.5** — Diálogo de gestão de histórico (apagar entradas obsoletas)
-- [ ] **v5.5** — Thumbnail assíncrono (não bloquear UI)
-- [ ] **v5.6** — Modo batch: processar múltiplas pastas em fila
-- [ ] **v5.6** — Suporte a vídeos (extração de data via `ffmpeg`)
+- [x] **v5.4** — Integração com `exifread` para extração fiável de datas em RAWs ✅
+- [x] **v5.4** — Corrigir filtro `file://` em URIs do Nautilus ✅
+- [x] **v5.4** — Escrita atómica do `historico.json` (via `os.replace`) ✅
+- [x] **v5.5** — Seletor de pasta de destino via `Gtk.FileChooserDialog` ✅
+- [x] **v5.5** — Persistência da última pasta escolhida ✅
+- [ ] **v5.6** — Diálogo de gestão de histórico (apagar entradas obsoletas)
+- [ ] **v5.6** — Thumbnail assíncrono (não bloquear UI)
+- [ ] **v5.7** — Modo batch: processar múltiplas pastas em fila
+- [ ] **v5.7** — Suporte a vídeos (extração de data via `ffmpeg`)
 - [ ] **v6.0** — Versão standalone (fora do Nautilus) com drag-and-drop
 
 ---
@@ -333,7 +338,7 @@ Contribuições são bem-vindas, especialmente:
 
 Histórico completo de versões em [`CHANGELOG.md`](./CHANGELOG.md).
 
-Versão atual: **v5.3** (2024)
+Versão atual: **v5.5** (2024)
 
 ---
 
